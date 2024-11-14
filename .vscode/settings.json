@@ -1,0 +1,41 @@
+{
+  "prettier.enable": true,
+  "eslint.enable": true,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.quoteStyle": "single",
+  "files.associations": {
+    ".env.debug": "properties",
+    ".env": "properties",
+    ".env.example": "properties",
+    ".env.production": "properties",
+    ".env.staging": "properties",
+    ".env.test": "properties"
+  },
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#36b2c0",
+    "activityBar.activeBorder": "#f8e6f6",
+    "activityBar.background": "#36b2c0",
+    "activityBar.foreground": "#15202b",
+    "activityBar.inactiveForeground": "#15202b99",
+    "activityBarBadge.background": "#f8e6f6",
+    "activityBarBadge.foreground": "#15202b",
+    "statusBar.background": "#2b8d98",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#36b2c0",
+    "titleBar.activeBackground": "#2b8d98",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#2b8d9899",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  },
+  "peacock.color": "#2b8d98"
+}

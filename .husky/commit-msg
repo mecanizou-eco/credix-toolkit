@@ -1,0 +1,35 @@
+
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Function to check the first line of commit message
+check_commit_message() {
+  commit_message_file="$1"
+
+  # Read only the first line of the commit message
+  first_line=$(head -n 1 "$commit_message_file")
+
+  # Pattern for standard commit message with description
+  description_pattern='^[^:(]+(\([^)]+\))?: [A-Z][^.]*$'
+
+  # Pattern for version number format
+  version_number_pattern='^[^:(]+(\([^)]+\))?: [0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[0-9]+)?)?$'
+
+  # Check if the commit message matches the description pattern
+  if echo "$first_line" | grep -qE "$description_pattern"; then
+    # Valid description format
+    return 0
+  fi
+
+  # Check if the commit message matches the version number pattern
+  if echo "$first_line" | grep -qE "$version_number_pattern"; then
+    # Valid version number format
+    return 0
+  fi
+
+  # If the commit message does not match any of the patterns, it's an error
+  echo "ERROR: Commit message format is invalid."
+  exit 1
+}
+
+# Execute the commit message check
+check_commit_message "$1"

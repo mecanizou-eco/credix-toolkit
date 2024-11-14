@@ -1,0 +1,49 @@
+{
+  "name": "credix-toolkit",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/main.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "prepare": "husky install",
+    "lint": "tsc && eslint",
+    "clean": "rimraf dist/*",
+    "cli": "yarn run build && node dist/index.js",
+    "build": "yarn clean && tsc && tsc-alias"
+  },
+  "bin": {
+    "credix-toolkit": "./dist/index.js"
+  },
+  "devDependencies": {
+    "@leandromatos/eslint-config": "^2.3.0",
+    "@types/figlet": "^1.5.8",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.12.2",
+    "@types/papaparse": "^5.3.14",
+    "@types/prompts": "^2.4.9",
+    "dotenv": "^16.4.5",
+    "eslint": "^8.57.0",
+    "husky": "^9.1.6",
+    "rimraf": "^5.0.5",
+    "standard-version": "^9.5.0",
+    "tsc-alias": "^1.8.8",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "ascii-progress": "^2.0.0",
+    "aws-sdk": "^2.1589.0",
+    "colorette": "^2.0.20",
+    "commander": "^12.0.0",
+    "crypto": "^1.0.1",
+    "figlet": "^1.7.0",
+    "fs-extra": "^11.2.0",
+    "knex": "^3.1.0",
+    "papaparse": "^5.4.1",
+    "pg": "^8.11.4",
+    "prompts": "^2.4.2",
+    "zod": "^3.22.4"
+  }
+}

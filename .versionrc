@@ -1,0 +1,82 @@
+{
+  "types": [
+    {
+      "type": "build",
+      "hidden": true
+    },
+    {
+      "type": "chore",
+      "hidden": true
+    },
+    {
+      "type": "ci",
+      "hidden": true
+    },
+    {
+      "type": "docs",
+      "section": "Documentation"
+    },
+    {
+      "type": "feat",
+      "section": "Features"
+    },
+    {
+      "type": "fix",
+      "section": "Bug Fixes"
+    },
+    {
+      "type": "perf",
+      "section": "Performance Improvements"
+    },
+    {
+      "type": "refactor",
+      "hidden": true
+    },
+    {
+      "type": "style",
+      "hidden": true
+    },
+    {
+      "type": "revert",
+      "section": "Reverts"
+    },
+    {
+      "type": "test",
+      "hidden": true
+    }
+  ],
+  "skip": {
+    "changelog": false
+  },
+  "releaseRules": [
+    {
+      "type": "docs",
+      "release": "patch"
+    },
+    {
+      "type": "feat",
+      "release": "minor"
+    },
+    {
+      "type": "fix",
+      "release": "patch"
+    },
+    {
+      "type": "perf",
+      "release": "patch"
+    },
+    {
+      "type": "revert",
+      "release": "patch"
+    }
+  ],
+  "parserOpts": {
+    "noteKeywords": [
+      "BREAKING CHANGE",
+      "BREAKING CHANGES"
+    ]
+  },
+  "commitUrlFormat": "https://github.com/mecanizou-eco/omie-toolkit/commit/{{hash}}",
+  "compareUrlFormat": "https://github.com/mecanizou-eco/omie-toolkit/compare/{{previousTag}}...{{currentTag}}",
+  "releaseCommitMessageFormat": "chore(release): {{currentTag}}"
+}
