@@ -3,7 +3,7 @@ import { parse } from 'papaparse'
 import { resolve } from 'path'
 import { z } from 'zod'
 
-import { convertNullValuesToEmptyStrings } from '@/utils/convert-null-values-to-empty-strings'
+import { convertNullValuesToEmptyStrings } from '@/utils/string-clean-up.utils'
 
 export class CsvFileProcessor<T> {
   constructor(private readonly schema: z.ZodSchema<T>) {}
