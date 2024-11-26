@@ -1,5 +1,5 @@
 import { red } from 'colorette'
-import { inArray } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 
 import { closeLionDatabase, getLionDatabase } from '@/database/database'
 import { clientsTaxReceiptTable } from '@/repositories/lion/tables/client-tax-receipts.ts/table'
@@ -37,6 +37,24 @@ export default class LionRepository {
       .insert(outgoingTaxReceiptTable)
       .values(formattedData)
       .onConflictDoNothing()
+      .returning()
+
+    return response
+  }
+
+  async updateOutgoingTaxReceipt(data: any, outgoingTaxReceiptId: number) {
+    const lionDatabase = await getLionDatabase()
+
+    const formattedData = {
+      ...data,
+      updatedAt: this.formatDate(data.updatedAt),
+      issuedAt: this.formatDate(data.issuedAt),
+    }
+
+    const response = await lionDatabase
+      .update(outgoingTaxReceiptTable)
+      .set(formattedData)
+      .where(eq(outgoingTaxReceiptTable.id, outgoingTaxReceiptId))
       .returning()
 
     return response

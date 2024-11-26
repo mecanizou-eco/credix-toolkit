@@ -40,20 +40,12 @@ export class CredixNFCreateCommand implements CommandInterface {
 
     const existingClientTaxReceipts: ClientTaxReceiptEntity[] =
       await this.lionRepository.getClientTaxReceiptsByMecaniId(mecaniIds)
+    // TODO: E SE TIVER MAIS DE UMA NOTA DE CLIENTE PARA UM DADO MECANI ID? ISSO PODE ACONTECER?
 
     const mecaniIdSet = new Set(existingClientTaxReceipts.map(receipt => receipt.mecaniId))
 
     const recordsToCreate = transformedRecords.filter(record => !mecaniIdSet.has(record.mecaniId))
     const recordsToUpdate = transformedRecords.filter(record => mecaniIdSet.has(record.mecaniId))
-
-    console.log(
-      {
-        recordsToCreate: recordsToCreate.length,
-        recordsToUpdate: recordsToUpdate.length,
-      },
-      recordsToCreate,
-    )
-    // 1. Tem que criar a NF primeiro, porque a nota do cliente depende dela
 
     for (const toCreate of recordsToCreate) {
       const { mecaniId, clientAccountUid, accessKey, issuedAt, number, totalValue } = toCreate
@@ -73,8 +65,6 @@ export class CredixNFCreateCommand implements CommandInterface {
         return
       }
 
-      console.log({ createdOutgoingTaxReceipt })
-
       const outgoingTaxReceiptId = createdOutgoingTaxReceipt[0].id
 
       const clientTaxReceiptToCreate = this.clientTaxReceiptWriter.writeInsertData({
@@ -86,6 +76,22 @@ export class CredixNFCreateCommand implements CommandInterface {
       await this.lionRepository.createClientTaxReceipt(clientTaxReceiptToCreate)
     }
 
+    for (const toUpdate of recordsToUpdate) {
+      const { mecaniId, accessKey, issuedAt, number, totalValue } = toUpdate
+      const [clientTaxReceipt] = existingClientTaxReceipts.filter(data => data.mecaniId === mecaniId)
+
+      const outgoingTaxReceiptToUpdate = this.outgoingTaxReceiptWriter.writeUpdateData({
+        accessKey,
+        issuedAt,
+        number,
+        totalValue,
+      })
+
+      const updatedOutgoingTaxReceipt = await this.lionRepository.updateOutgoingTaxReceipt(
+        outgoingTaxReceiptToUpdate,
+        clientTaxReceipt.outgoingTaxReceiptId,
+      )
+    }
     await closeLionDatabase()
   }
 }

@@ -37,4 +37,35 @@ export default class OutgoingTaxReceiptWriter {
 
     return toCreate
   }
+
+  writeUpdateData({
+    accessKey,
+    issuedAt,
+    number,
+    totalValue,
+  }: {
+    accessKey: string
+    issuedAt: string | Date
+    number: number
+    totalValue: number | string
+  }): Partial<OutgoingTaxReceiptEntity> {
+    const bucketURL = 'https://nfes.mecanizou.com/'
+    const toUpdate: Partial<OutgoingTaxReceiptEntity> = {
+      totalValue,
+      operationsNatureId: 1,
+      // Venda de Mercadoria
+      status: 'created',
+      integrationProviderId: null,
+      serialNumber: 3,
+      // Serial da OMIE
+      updatedAt: new Date(),
+      number,
+      accessKey,
+      issuedAt,
+      pdfUrl: `${bucketURL}${accessKey}.pdf`,
+      xmlUrl: `${bucketURL}${accessKey}.xml`,
+    }
+
+    return toUpdate
+  }
 }
