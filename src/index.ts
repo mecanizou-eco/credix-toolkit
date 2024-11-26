@@ -10,7 +10,6 @@ class CommandRunner {
   private program: Command
   constructor() {
     this.program = new Command()
-    console.log('Cheguei pros comandos')
     this.setupCommands()
   }
 
@@ -30,7 +29,6 @@ class CommandRunner {
   }
 
   private setupCommands = () => {
-    console.log('setup')
     this.registerCommand(
       CredixNFCreateCommand.commandName,
       CredixNFCreateCommand.commandDescription,

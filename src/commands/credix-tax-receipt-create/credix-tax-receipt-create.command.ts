@@ -6,6 +6,7 @@ import { PromptHandler } from '@/core/prompt-handler'
 import { closeLionDatabase } from '@/database/database'
 import LionRepository from '@/repositories/lion/lion.repository'
 import ClientTaxReceiptWriter from '@/repositories/lion/utils/client-tax-receipt-writer'
+import OutgoingTaxReceiptWriter from '@/repositories/lion/utils/outgoing-tax-receipt-writer'
 import { ProductionMode } from '@/types/commands'
 import { ClientTaxReceiptEntity, OutgoingTaxReceiptEntity } from '@/types/lion'
 
@@ -16,6 +17,7 @@ export class CredixNFCreateCommand implements CommandInterface {
   private readonly credixTaxReceiptTransformer = new CredixTaxReceiptTransformer()
   private readonly lionRepository = new LionRepository()
   private readonly clientTaxReceiptWriter = new ClientTaxReceiptWriter()
+  private readonly outgoingTaxReceiptWriter = new OutgoingTaxReceiptWriter()
   private productionMode: ProductionMode = false
 
   static commandName = 'credix:tax-receipt:create <csv-file>'
@@ -38,24 +40,33 @@ export class CredixNFCreateCommand implements CommandInterface {
 
     const existingClientTaxReceipts: ClientTaxReceiptEntity[] =
       await this.lionRepository.getClientTaxReceiptsByMecaniId(mecaniIds)
+    // TODO: E SE TIVER MAIS DE UMA NOTA DE CLIENTE PARA UM DADO MECANI ID? ISSO PODE ACONTECER?
 
     const mecaniIdSet = new Set(existingClientTaxReceipts.map(receipt => receipt.mecaniId))
 
     const recordsToCreate = transformedRecords.filter(record => !mecaniIdSet.has(record.mecaniId))
     const recordsToUpdate = transformedRecords.filter(record => mecaniIdSet.has(record.mecaniId))
 
-    console.log(
-      {
-        recordsToCreate: recordsToCreate.length,
-        recordsToUpdate: recordsToUpdate.length,
-      },
-      recordsToCreate,
-    )
-    // 1. Tem que criar a NF primeiro, porque a nota do cliente depende dela
-
-    // TODO: CRIAR NF PRIMEIRO
     for (const toCreate of recordsToCreate) {
-      const { mecaniId, clientAccountUid, outgoingTaxReceiptId } = toCreate
+      const { mecaniId, clientAccountUid, accessKey, issuedAt, number, totalValue } = toCreate
+
+      const outgoingTaxReceiptToCreate = this.outgoingTaxReceiptWriter.writeInsertData({
+        accessKey,
+        issuedAt,
+        number,
+        totalValue,
+      })
+
+      const createdOutgoingTaxReceipt: OutgoingTaxReceiptEntity[] =
+        await this.lionRepository.createOutgoingTaxReceipt(outgoingTaxReceiptToCreate)
+
+      if (createdOutgoingTaxReceipt.length === 0) {
+        //! Não foi criada a nota!
+        return
+      }
+
+      const outgoingTaxReceiptId = createdOutgoingTaxReceipt[0].id
+
       const clientTaxReceiptToCreate = this.clientTaxReceiptWriter.writeInsertData({
         clientAccountUid,
         mecaniId,
@@ -65,6 +76,22 @@ export class CredixNFCreateCommand implements CommandInterface {
       await this.lionRepository.createClientTaxReceipt(clientTaxReceiptToCreate)
     }
 
+    for (const toUpdate of recordsToUpdate) {
+      const { mecaniId, accessKey, issuedAt, number, totalValue } = toUpdate
+      const [clientTaxReceipt] = existingClientTaxReceipts.filter(data => data.mecaniId === mecaniId)
+
+      const outgoingTaxReceiptToUpdate = this.outgoingTaxReceiptWriter.writeUpdateData({
+        accessKey,
+        issuedAt,
+        number,
+        totalValue,
+      })
+
+      const updatedOutgoingTaxReceipt = await this.lionRepository.updateOutgoingTaxReceipt(
+        outgoingTaxReceiptToUpdate,
+        clientTaxReceipt.outgoingTaxReceiptId,
+      )
+    }
     await closeLionDatabase()
   }
 }

@@ -1,8 +1,9 @@
 import { red } from 'colorette'
-import { inArray } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 
 import { closeLionDatabase, getLionDatabase } from '@/database/database'
 import { clientsTaxReceiptTable } from '@/repositories/lion/tables/client-tax-receipts.ts/table'
+import { outgoingTaxReceiptTable } from '@/repositories/lion/tables/outgoing-tax-receipt.ts/table'
 
 export default class LionRepository {
   async getClientTaxReceiptsByMecaniId(oderReferenceIds: number[]): Promise<any> {
@@ -22,11 +23,56 @@ export default class LionRepository {
     }
   }
 
+  async createOutgoingTaxReceipt(data: any) {
+    const lionDatabase = await getLionDatabase()
+
+    const formattedData = {
+      ...data,
+      createdAt: this.formatDate(data.createdAt),
+      updatedAt: this.formatDate(data.updatedAt),
+      issuedAt: this.formatDate(data.issuedAt),
+    }
+
+    const response = await lionDatabase
+      .insert(outgoingTaxReceiptTable)
+      .values(formattedData)
+      .onConflictDoNothing()
+      .returning()
+
+    return response
+  }
+
+  async updateOutgoingTaxReceipt(data: any, outgoingTaxReceiptId: number) {
+    const lionDatabase = await getLionDatabase()
+
+    const formattedData = {
+      ...data,
+      updatedAt: this.formatDate(data.updatedAt),
+      issuedAt: this.formatDate(data.issuedAt),
+    }
+
+    const response = await lionDatabase
+      .update(outgoingTaxReceiptTable)
+      .set(formattedData)
+      .where(eq(outgoingTaxReceiptTable.id, outgoingTaxReceiptId))
+      .returning()
+
+    return response
+  }
+
   async createClientTaxReceipt(data: any) {
-    console.log({ data })
     const lionDatabase = await getLionDatabase()
     const response = await lionDatabase.insert(clientsTaxReceiptTable).values(data).onConflictDoNothing().returning()
 
     return response
+  }
+
+  private formatDate(dateString: string): Date {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      throw new Error(`Invalid date string: ${dateString}`)
+    }
+
+    return date
   }
 }

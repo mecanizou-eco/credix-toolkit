@@ -11,13 +11,13 @@ export type ClientTaxReceiptEntity = {
 export type OutgoingTaxReceiptEntity = {
   id: number
   uid: string
-  createdAt: string
-  updatedAt: string
+  createdAt: Date
+  updatedAt: Date
   isActive: boolean
-  totalValue: number
+  totalValue: number | string
   operationsNatureId: number
   status: string
-  issuedAt: string
+  issuedAt: Date | string
   integrationProviderId: string | null
   serialNumber: number
   number: number
